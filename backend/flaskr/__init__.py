@@ -106,11 +106,87 @@ def create_app(test_config=None):
   and shown whether they were correct or not. 
   '''
 
+
   '''
-  @TODO: 
-  Create error handlers for all expected errors 
-  including 404 and 422. 
+  Error handlers for all expected errors  
   '''
+
+  '''
+  Error 404 (Resource not found)
+  '''
+  @app.errorhandler(404)
+  def not_found(error):
+    """
+    Function not_found handle error 404 
+
+    Returns:
+    JSON objects includes error's status code 404 (int)
+    and a message to the user (string)
+    """
+    return jsonify({
+      "success": False, 
+      "error": 404,
+      "message": "Resource Not Found"
+      }), 404
+  
+
+  '''
+  Error 422 (Unprocessable operation)
+  '''
+  @app.errorhandler(422)
+  def unprocessable(error):
+    """
+    Function unprocessable handle error 422 
+
+    Returns:
+    JSON objects includes error's status code 422 (int)
+    and a message to the user (string)
+    """
+    return jsonify({
+      "success": False, 
+      "error": 422,
+      "message": "Unprocessable"
+      }), 422
+
+
+  '''
+  Error 400 (Bad request)
+  '''
+  @app.errorhandler(400)
+  def bad_request(error):
+    """
+    Function bad_request handle error 400 
+
+    Returns:
+    JSON objects includes error's status code 400 (int)
+    and a message to the user (string)
+    """
+    return jsonify({
+      "success": False, 
+      "error": 400,
+      "message": "Bad Request"
+      }), 400
+
+
+  '''
+  Error 405 (Method not allowed)
+  '''
+  @app.errorhandler(405)
+  def not_allowed(error):
+    """
+    Function not_allowed handle error 405 
+
+    Returns:
+    JSON objects includes error's status code 405 (int)
+    and a message to the user (string)
+    """
+    return jsonify({
+      "success": False, 
+      "error": 405,
+      "message": "Method Not Allowed"
+      }), 405
+  
+
   
   return app
 
