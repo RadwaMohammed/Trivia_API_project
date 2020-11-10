@@ -19,11 +19,20 @@ def create_app(test_config=None):
     Allow '*' for origins
   '''
   CORS(app, resources={r"/*": {"origins": "*"}})
-  
+
 
   '''
-  @TODO: Use the after_request decorator to set Access-Control-Allow
+  Using the after_request decorator to set Access-Control-Allow 
+  by adding headers to the response
   '''
+  @app.after_request
+  def after_request(response): 
+    """ Add headers to the response object """ 
+    # Set Access-Control-Allow
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
+
 
   '''
   @TODO: 
