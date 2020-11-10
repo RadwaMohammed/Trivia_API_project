@@ -14,8 +14,12 @@ def create_app(test_config=None):
   setup_db(app)
   
   '''
-  @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
+  Set up CORS. 
+    Intialize Flask-CORS
+    Allow '*' for origins
   '''
+  CORS(app, resources={r"/*": {"origins": "*"}})
+  
 
   '''
   @TODO: Use the after_request decorator to set Access-Control-Allow
