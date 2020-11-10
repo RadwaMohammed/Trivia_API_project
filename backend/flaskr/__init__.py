@@ -34,11 +34,37 @@ def create_app(test_config=None):
     return response
 
 
+
   '''
-  @TODO: 
-  Create an endpoint to handle GET requests 
+  Endpoint to handle GET requests 
   for all available categories.
   '''
+  @app.route('/categories')
+  def retrieve_categories():
+    """
+    Retrieve all the categories ordered by category's id
+
+    Returns:
+    -------
+    JSON object includes dict of all categories
+
+    Raises:
+    ------
+    404 error if there is no categories
+    """
+    categories = Category.query.order_by(Category.id).all()
+    # Format categories dict
+    formatted_categories = {category.id: category.type for category in categories}
+    # Error 404 if there is no categories
+    if len(formatted_categories) == 0:
+      abort(404)
+
+    return jsonify({
+      'success': True,
+      'categories': formatted_categories,
+      'total_categories': len(categories)
+    })
+
 
 
   '''
@@ -186,7 +212,6 @@ def create_app(test_config=None):
       "message": "Method Not Allowed"
       }), 405
   
-
   
   return app
 
