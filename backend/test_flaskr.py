@@ -32,22 +32,58 @@ class TriviaTestCase(unittest.TestCase):
 
     '''
     Test for categories
-    status code = 200
-    success = True
-    categories is a dict
-    categories not empty
     '''
     def test_retrieve_categories(self):
         """ Test for retrieve_categories"""
         res = self.client().get('/categories')
+        # Load the data
         data = json.loads(res.data)
 
+        # status code = 200 
         self.assertEqual(res.status_code, 200)
+        # success = True
         self.assertEqual(data['success'], True)
+        # categories is a dict type
         self.assertIsInstance(data['categories'], dict)
+        # categories dict not empty
         self.assertTrue(len(data['categories']))
     
 
+
+    '''
+    Test for questions
+    '''
+    def test_get_paginated_questions(self):
+        """ Test for retrieve_questions"""
+        res = self.client().get('/questions')
+        # Load the data
+        data = json.loads(res.data)
+
+        # status code = 200  
+        self.assertEqual(res.status_code, 200)
+        # success = True
+        self.assertEqual(data['success'], True)
+        # questions list is exist
+        self.assertTrue(data['questions'])
+        # questions is a list type
+        self.assertIsInstance(data['questions'], list)
+        # question list not empty
+        self.assertTrue(len(data['questions']))
+        # categories dict is exist
+        self.assertTrue(data['categories'])
+    
+
+    def test_404_sent_requesting_beyond_valid_page(self):
+        """ Test for sending 404 error if requesting beyond valid page"""
+        res = self.client().get('/questions?page=1000')
+        data = json.loads(res.data)
+
+        # status code = 404
+        self.assertEqual(res.status_code, 404)
+        # success = False
+        self.assertEqual(data['success'], False)
+        # massage = 'Resource Not Found'
+        self.assertEqual(data['message'], 'Resource Not Found')
 
 # Make the tests conveniently executable
 if __name__ == "__main__":

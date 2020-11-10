@@ -6,7 +6,45 @@ import random
 
 from models import setup_db, Question, Category
 
+
+# Constant to paginate by 10 questions per page
 QUESTIONS_PER_PAGE = 10
+
+'''
+Helper function
+pagination
+'''
+def paginate_questions(request, selection):
+  """
+  Paginate questions
+  each page contains (QUESTIONS_PER_PAGE)
+
+  Parameters:
+  ----------
+  request: dict
+    the rquest object
+  selection: list
+    list of all questions dict 
+
+  Returns:
+  -------
+  current_questions: list
+    list of current questions dict per page  
+  """
+  # Get page form request.args object (dafault value = 1 (int))
+  page = request.args.get('page', 1, type=int)
+  # start idex
+  start = (page - 1) * QUESTIONS_PER_PAGE
+  # End index
+  end = start + QUESTIONS_PER_PAGE
+  # Format questions list
+  questions = [question.format() for question in selection]
+  # Current question per page 
+  current_questions = questions[start:end]
+
+  return current_questions
+
+
 
 def create_app(test_config=None):
   # create and configure the app
@@ -68,18 +106,46 @@ def create_app(test_config=None):
 
 
   '''
-  @TODO: 
-  Create an endpoint to handle GET requests for questions, 
+  Endpoint to handle GET requests for questions, 
   including pagination (every 10 questions). 
-  This endpoint should return a list of questions, 
-  number of total questions, current category, categories. 
-
-  TEST: At this point, when you start the application
-  you should see questions and categories generated,
-  ten questions per page and pagination at the bottom of the screen for three pages.
-  Clicking on the page numbers should update the questions. 
+  This endpoint return a list of questions, 
+  number of total questions, current category, categories.  
   '''
+  @app.route('/questions')
+  def retrieve_questions():
+    """ 
+    Retrieve paginated questions
+    
+    Returns:
+    -------
+    JSON object includes a list of questions, number of total questions, current category, categories
 
+    Raises:
+    ------
+    404 error if there is no questions
+    """
+    # Get all questions including pagination
+    selection = Question.query.all()
+    # Current questions per pag
+    current_questions = paginate_questions(request, selection)
+
+    # Get all categories
+    categories = Category.query.order_by(Category.id).all()
+    # Format categories dict
+    formatted_categories = {category.id: category.type for category in categories}
+    
+    # Error 404 if there is no questions
+    if len(current_questions) == 0:
+      abort(404)
+
+    return jsonify({
+      'success': True,
+      'questions': current_questions,
+      'total_questions': len(Question.query.all()),
+      'categories': formatted_categories,
+      'current_category': None
+    })
+    
   '''
   @TODO: 
   Create an endpoint to DELETE question using a question ID. 
@@ -146,6 +212,7 @@ def create_app(test_config=None):
     Function not_found handle error 404 
 
     Returns:
+    -------
     JSON objects includes error's status code 404 (int)
     and a message to the user (string)
     """
@@ -165,6 +232,7 @@ def create_app(test_config=None):
     Function unprocessable handle error 422 
 
     Returns:
+    -------
     JSON objects includes error's status code 422 (int)
     and a message to the user (string)
     """
@@ -184,6 +252,7 @@ def create_app(test_config=None):
     Function bad_request handle error 400 
 
     Returns:
+    -------
     JSON objects includes error's status code 400 (int)
     and a message to the user (string)
     """
@@ -203,6 +272,7 @@ def create_app(test_config=None):
     Function not_allowed handle error 405 
 
     Returns:
+    -------
     JSON objects includes error's status code 405 (int)
     and a message to the user (string)
     """
