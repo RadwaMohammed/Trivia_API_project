@@ -202,6 +202,54 @@ def create_app(test_config=None):
   '''
 
   '''
+  Endpoint to POST a new question 
+  '''
+  @app.route('/questions', methods=['POST'])
+  def create_question():
+    """ 
+    Create a new question
+    
+    Returns:
+    -------
+    JSON object includes the created question's id, a list of the questions, number of total questions, categories
+
+    Raises:
+    ------
+    422 error if there is a problem in creating the question
+    """
+    # create the body for the POST request for creating the new question
+    body = request.get_json()
+    new_question = body.get('question', None)
+    new_answer = body.get('answer', None)
+    new_category = body.get('category', None)
+    new_difficulty = body.get('difficulty', None)
+
+    # Get all categories
+    categories = Category.query.order_by(Category.id).all()
+    # Format categories dict
+    formatted_categories = {category.id: category.type for category in categories}
+
+    try:
+      question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
+      question.insert()
+
+      selection = Question.query.all()
+      current_questions = paginate_questions(request, selection)
+
+      return jsonify({
+        'success': True,
+        'created': question.id,
+        'questions': current_questions,
+        'categories': formatted_categories,
+        'total_questions': len(Question.query.all())
+      })
+    
+    except:
+      abort(422)
+
+
+
+  '''
   @TODO: 
   Create a POST endpoint to get questions based on a search term. 
   It should return any questions for whom the search term 

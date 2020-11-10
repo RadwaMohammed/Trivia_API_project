@@ -18,6 +18,21 @@ class TriviaTestCase(unittest.TestCase):
         self.database_path = "postgresql://{}:{}@{}/{}".format('postgres', 'passR00','localhost:5432', self.database_name)
         setup_db(self.app, self.database_path)
 
+        # question for testing    
+        self.new_question = {
+            'question': 'Which is the tallest mountain in the world?',
+            'answer': 'Mount Everest',
+            'category': 3,
+            'difficulty': 2
+        }
+
+        self.new_question_not_valid = {
+            'question': 'Which is the tallest mountain in the world?',
+            'answer': 'Mount Everest',
+            'category': 'Geography', # string to make it not valid question
+            'difficulty': 2
+        }     
+
         # binds the app to the current context
         with self.app.app_context():
             self.db = SQLAlchemy()
@@ -120,6 +135,52 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         # message = 'Unprocessable'
         self.assertEqual(data['message'], 'Unprocessable')
+
+
+
+    '''
+    Test for create a new question
+    '''
+    def test_create_new_question(self):
+        """ Test for create_question """
+        res = self.client().post('/questions', json=self.new_question)
+        data = json.loads(res.data)
+
+        # status code = 200 
+        self.assertEqual(res.status_code, 200)
+        # success = True
+        self.assertEqual(data['success'], True)
+        # check that question is created
+        self.assertIsNotNone(data['created'])
+        self.assertTrue(len(data['questions']))
+
+
+    def test_422_if_create_question_fails(self):
+        """ Test for 422 error if the question creation failed """
+        res = self.client().post('/questions', json=self.new_question_not_valid)
+        data = json.loads(res.data)
+
+        # status code = 422
+        self.assertEqual(res.status_code, 422)
+        # success = False
+        self.assertEqual(data['success'], False)
+        # message = 'Unprocessable'
+        self.assertEqual(data['message'], 'Unprocessable')
+    
+
+    def test_405_if_question_creation_not_allowed(self):
+        """ Test for 405 error if the the end point is wrong """
+        res = self.client().post('/questions/55', json=self.new_question)
+        data = json.loads(res.data)
+        
+        # status code = 405
+        self.assertEqual(res.status_code, 405)
+        # success = False
+        self.assertEqual(data['success'], False)
+        # message = 'Method Not Allowed'
+        self.assertEqual(data['message'], 'Method Not Allowed')
+
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
