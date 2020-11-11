@@ -191,17 +191,6 @@ def create_app(test_config=None):
 
 
   '''
-  @TODO: 
-  Create an endpoint to POST a new question, 
-  which will require the question and answer text, 
-  category, and difficulty score.
-
-  TEST: When you submit a question on the "Add" tab, 
-  the form will clear and the question will appear at the end of the last page
-  of the questions list in the "List" tab.  
-  '''
-
-  '''
   Endpoint to POST a new question 
   '''
   @app.route('/questions', methods=['POST'])
@@ -219,8 +208,8 @@ def create_app(test_config=None):
     """
     # create the body for the POST request for creating the new question
     body = request.get_json()
-    new_question = body.get('question', None)
-    new_answer = body.get('answer', None)
+    new_question = body.get('question', None).strip()
+    new_answer = body.get('answer', None).strip()
     new_category = body.get('category', None)
     new_difficulty = body.get('difficulty', None)
 
@@ -250,15 +239,42 @@ def create_app(test_config=None):
 
 
   '''
-  @TODO: 
-  Create a POST endpoint to get questions based on a search term. 
-  It should return any questions for whom the search term 
+  Endpoint to get questions based on a search term. 
+  It returns any questions for whom the search term 
   is a substring of the question. 
-
-  TEST: Search by any phrase. The questions list will update to include 
-  only question that include that string within their question. 
-  Try using the word "title" to start. 
   '''
+  @app.route('/questions/search', methods=['POST'])
+  def search_questions():
+    """ 
+    Search the questions based on a search term
+    
+    Returns:
+    -------
+    JSON object includes the questions found match the search_term
+
+    Raises:
+    ------
+    404 error if there is no question found
+    422 error if there is a problem in searching for the question
+    """
+    body = request.get_json()
+    search_term = body.get('searchTerm', None).strip()
+
+    try: 
+      # list of questions that matches ther searchTerm
+      selection = Question.query.filter(Question.question.ilike('%{}%'.format(search_term)))
+      current_questions = paginate_questions(request, selection)
+
+      return jsonify({
+        'success': True,
+        'questions': current_questions,
+        'total_questions': len(selection.all())
+      })
+    
+    except:
+      abort(422)
+
+
 
   '''
   @TODO: 

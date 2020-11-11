@@ -181,6 +181,41 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'Method Not Allowed')
 
 
+    '''
+    Test for search questions by searchTerm
+    '''
+    def test_get_question_search_with_results(self):
+        """ Test for get question search with result """
+        # here we want to search 'title' through the questions
+        res = self.client().post('/questions/search', json={'searchTerm': 'title'})
+        # got the data
+        data = json.loads(res.data)
+
+        # status code = 200 
+        self.assertEqual(res.status_code, 200)
+        # success = True
+        self.assertEqual(data['success'], True)
+        # check questions is exist
+        self.assertTrue(data['total_questions'])
+        # check we have 2 question contain 'title'
+        self.assertEqual(len(data['questions']), 2)
+
+
+    def test_get_question_search_without_results(self):
+        """ Test for question search without results """
+        # search for somthing not in the database
+        res = self.client().post('/questions/search', json={'searchTerm': 'rrrrrr'})
+        data = json.loads(res.data)
+
+        # status code = 200
+        self.assertEqual(res.status_code, 200)
+        # success = True
+        self.assertEqual(data['success'], True)
+        # check total questions list is empty
+        self.assertEqual(data['total_questions'], 0)
+        # check current questions list is empty
+        self.assertEqual(len(data['questions']), 0)
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
