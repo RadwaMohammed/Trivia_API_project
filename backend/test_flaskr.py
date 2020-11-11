@@ -217,6 +217,38 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(len(data['questions']), 0)
 
 
+    '''
+    Test for get questions by category's id
+    '''
+    def test_get_questions_by_category_id(self):
+        """ Test for questions filtered by category's id """
+        res = self.client().get('/categories/6/questions')
+        data = json.loads(res.data)
+
+        # status code = 200
+        self.assertEqual(res.status_code, 200)
+        # success = True
+        self.assertEqual(data['success'], True)
+        # check current_category's id is the id in the endpoint
+        self.assertEqual(data['current_category']['id'], 6)
+        # check total questions per category's with id = 6 are two questions
+        self.assertEqual(data['total_questions_per_category'], 2)
+
+
+    def test_404_not_found_if_category_invalid(self):
+        """ Test for 404 error if the category's id is invalid """
+        res = self.client().get('/categories/3000/questions')
+        data = json.loads(res.data)
+
+        # status code = 404
+        self.assertEqual(res.status_code, 404)
+        # success = False
+        self.assertEqual(data['success'], False)
+        # massage = 'Resource Not Found'
+        self.assertEqual(data['message'], 'Resource Not Found')
+
+
+
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
