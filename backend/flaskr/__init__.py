@@ -219,6 +219,10 @@ def create_app(test_config=None):
     formatted_categories = {category.id: category.type for category in categories}
 
     try:
+      # Make sure that answer and question not empty 
+      if ((new_question is None) or (new_answer is None) or (new_question == '') or (new_answer == '')):
+        abort(422)
+        
       question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
       question.insert()
 
