@@ -320,17 +320,67 @@ def create_app(test_config=None):
     })
 
   
+
   '''
-  @TODO: 
-  Create a POST endpoint to get questions to play the quiz. 
-  This endpoint should take category and previous question parameters 
+  Endpoint to get questions to play the quiz. 
+  It takes category and previous question parameters 
   and return a random questions within the given category, 
   if provided, and that is not one of the previous questions. 
-
-  TEST: In the "Play" tab, after a user selects "All" or a category,
-  one question at a time is displayed, the user is allowed to answer
-  and shown whether they were correct or not. 
   '''
+  @app.route('/quizzes', methods=['POST'])
+  def play_get_random_quiz():
+    """
+    Get random question to play the quiz
+
+    Returns:
+    -------
+    JSON object includes the question
+
+    Raises:
+    ------
+    422 error if there is a problem 
+    """
+
+    body = request.get_json()
+    # get previous questions
+    previous_questions = body.get('previous_questions')
+    # get question's category
+    quiz_category = body.get('quiz_category')
+    try:
+      # category id = 0 for selection (All)
+      if quiz_category['id'] == 0:
+        # Get questions without spcify category
+        quizzes = Question.query.all()
+
+      else: 
+        # Get questions filteres by category
+        quizzes = Question.query.filter_by(category=quiz_category['id']).all()
+    
+      # Total quizzes 
+      total_quizzes = len(quizzes)
+      # Get random quiz
+      random_quiz = random.choice(quizzes).format()
+      
+      # Make sure that the quiz not in the previous questions list
+      while random_quiz['id'] in previous_questions:
+        random_quiz = random_quiz
+
+        # To check if all question played return no question because may be total question per category is less than 5 
+        # and questionsPerPlay is set to be 5 (QuizView.js file)
+        if total_quizzes == len(previous_questions):
+          return jsonify({
+            'success': True,
+            'total_quizzes': total_quizzes
+          })
+
+      return jsonify({
+        'success': True,
+        'question': random_quiz,
+        'total_quizzes': total_quizzes
+      })
+    except: 
+      abort(422)
+
 
 
   '''

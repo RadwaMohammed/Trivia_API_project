@@ -31,7 +31,16 @@ class TriviaTestCase(unittest.TestCase):
             'answer': 'Mount Everest',
             'category': 'Geography', # string to make it not valid question
             'difficulty': 2
-        }     
+        }  
+
+        # request data for test
+        self.request_body_data = {
+            'previous_questions': [16, 19],
+            'quiz_category': {
+                'type': 'Art', 
+                'id': 2
+                }
+        }   
 
         # binds the app to the current context
         with self.app.app_context():
@@ -248,6 +257,40 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'Resource Not Found')
 
 
+
+    '''
+    Test for qet question to play quiz
+    '''
+    def test_play_random_quiz(self):
+        """ Test for get random question to play quiz """
+        res = self.client().post('/quizzes', json=self.request_body_data)
+        data = json.loads(res.data)
+
+        # status code = 200 
+        self.assertEqual(res.status_code, 200)
+        # success = True
+        self.assertEqual(data['success'], True)
+        # check there is a question
+        self.assertTrue(data['question'])
+        # question is in the correct category
+        self.assertEqual(data['question']['category'], 2)
+        # check previous question not accepted
+        self.assertNotEqual(data['question']['id'], 16)
+
+
+    def test_422_error_play_quiz_without_data(self):
+        """ Test for 422 error request with no data to play quiz """
+        res = self.client().post('/quizzes', json={})
+        data = json.loads(res.data)
+
+        # status code = 422
+        self.assertEqual(res.status_code, 422)
+        # success = False
+        self.assertEqual(data['success'], False)
+        # message = 'Unprocessable'
+        self.assertEqual(data['message'], 'Unprocessable')
+
+    
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
