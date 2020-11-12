@@ -362,12 +362,12 @@ def create_app(test_config=None):
     
       # Total quizzes 
       total_quizzes = len(quizzes)
-      # Get random quiz
+      # # Get random quiz
       random_quiz = random.choice(quizzes).format()
       
       # Make sure that the quiz not in the previous questions list
       while random_quiz['id'] in previous_questions:
-        random_quiz = random_quiz
+        random_quiz = random.choice(quizzes).format()
 
         # To check if all question played return no question because may be total question per category is less than 5 
         # and questionsPerPlay is set to be 5 (QuizView.js file)
@@ -471,6 +471,4 @@ def create_app(test_config=None):
       }), 405
   
   
-  return app
-
-    
+  return app   
