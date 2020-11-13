@@ -14,6 +14,9 @@ class QuestionView extends Component {
       totalQuestions: 0,
       categories: {},
       currentCategory: null,
+      searchTerm: '', 
+      byCategory: false, // indicator for questions by category 
+      bySearch: false  // indicator to questions result of search
     }
   }
 
@@ -22,6 +25,8 @@ class QuestionView extends Component {
   }
 
   getQuestions = () => {
+    this.state.byCategory = false;
+    this.state.bySearch = false;
     $.ajax({
       url: `/questions?page=${this.state.page}`, 
       type: "GET",
@@ -41,7 +46,8 @@ class QuestionView extends Component {
   }
 
   selectPage(num) {
-    this.setState({page: num}, () => this.getQuestions());
+    this.setState({page: num}, () => this.state.byCategory ? this.getByCategory(this.state.currentCategory.id) 
+      : this.state.bySearch ? this.submitSearch(this.state.searchTerm) : this.getQuestions());
   }
 
   createPagination(){
@@ -59,8 +65,10 @@ class QuestionView extends Component {
   }
 
   getByCategory= (id) => {
+    this.state.byCategory = true;
+    this.state.bySearch = false;
     $.ajax({
-      url: `/categories/${id}/questions`, 
+      url: `/categories/${id}/questions?page=${this.state.page}`, // Update url to be paginate
       type: "GET",
       success: (result) => {
         this.setState({
@@ -77,8 +85,10 @@ class QuestionView extends Component {
   }
 
   submitSearch = (searchTerm) => {
+    this.state.byCategory = false;
+    this.state.bySearch = true;
     $.ajax({
-      url: `/questions/search`, 
+      url: `/questions/search?page=${this.state.page}`, // Update url to be paginate
       type: "POST",
       dataType: 'json',
       contentType: 'application/json',
@@ -91,7 +101,8 @@ class QuestionView extends Component {
         this.setState({
           questions: result.questions,
           totalQuestions: result.total_questions,
-          currentCategory: result.current_category })
+          currentCategory: result.current_category,
+          searchTerm: result.search_term }) 
         return;
       },
       error: (error) => {

@@ -272,7 +272,8 @@ def create_app(test_config=None):
       return jsonify({
         'success': True,
         'questions': current_questions,
-        'total_questions': len(selection.all())
+        'total_questions': len(selection.all()),
+        'search_term': search_term 
       })
     
     except:
@@ -319,7 +320,7 @@ def create_app(test_config=None):
     return jsonify({
       'success': True,
       'questions': current_questions,
-      'total_questions_per_category': len(current_questions),
+      'total_questions': len(selection),
       'current_category': current_category.format()
     })
 
