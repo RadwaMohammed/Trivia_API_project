@@ -357,7 +357,6 @@ Ignore the dropdb command the first time you run tests.
             "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?"
         }
     ],
-    "search_term": "title",
     "success": true,
     "total_questions": 2
 }

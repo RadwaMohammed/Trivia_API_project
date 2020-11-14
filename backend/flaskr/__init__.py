@@ -272,8 +272,7 @@ def create_app(test_config=None):
       return jsonify({
         'success': True,
         'questions': current_questions,
-        'total_questions': len(selection.all()),
-        'search_term': search_term 
+        'total_questions': len(selection.all())
       })
     
     except:
